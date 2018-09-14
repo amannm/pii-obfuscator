@@ -1,7 +1,6 @@
 package systems.cauldron.utility;
 
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -13,6 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class PiiObfuscatorTest {
 
@@ -50,16 +52,16 @@ public class PiiObfuscatorTest {
 
         testRecords.forEach(rewriter::rewrite);
 
-        Assert.assertNotEquals("Amann Malik", testRecords.get(0)[1]);
-        Assert.assertNotEquals("1234567890", testRecords.get(0)[3]);
-        Assert.assertNotEquals("George Washington", testRecords.get(0)[5]);
+        assertNotEquals("Amann Malik", testRecords.get(0)[1]);
+        assertNotEquals("1234567890", testRecords.get(0)[3]);
+        assertNotEquals("George Washington", testRecords.get(0)[5]);
 
-        Assert.assertNotEquals("George Washington", testRecords.get(1)[1]);
-        Assert.assertNotEquals("1200000", testRecords.get(1)[3]);
-        Assert.assertNotEquals("Amann Malik", testRecords.get(1)[5]);
+        assertNotEquals("George Washington", testRecords.get(1)[1]);
+        assertNotEquals("1200000", testRecords.get(1)[3]);
+        assertNotEquals("Amann Malik", testRecords.get(1)[5]);
 
-        Assert.assertEquals(testRecords.get(0)[1], testRecords.get(1)[5]);
-        Assert.assertEquals(testRecords.get(0)[5], testRecords.get(1)[1]);
+        assertEquals(testRecords.get(0)[1], testRecords.get(1)[5]);
+        assertEquals(testRecords.get(0)[5], testRecords.get(1)[1]);
 
     }
 
