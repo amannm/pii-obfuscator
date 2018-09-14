@@ -19,8 +19,8 @@ public class RecordKeyScanner<T extends Enum<T>> {
         collectors.forEach((index, keys) -> keys.add(record[index]));
     }
 
-    public Set<String> getKeys(T type) {
-        return keysets.get(type);
+    public Map<T, Set<String>> getResults() {
+        return Collections.unmodifiableMap(keysets);
     }
 
 }
