@@ -5,7 +5,13 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PiiObfuscatorTest {
@@ -19,55 +25,11 @@ public class PiiObfuscatorTest {
     }
 
     @Test
-    public void basicTest() {
+    public void basicTest() throws IOException {
 
-        List<String[]> testRecords = Arrays.asList(
-                new String[]{
-                        "69",
-                        "Amann Malik",
-                        "fartmaster",
-                        "1234567890",
-                        "false",
-                        "George Washington",
-                        "helloworld"
-                },
-                new String[]{
-                        "99",
-                        "George Washington",
-                        "president",
-                        "1200000",
-                        "true",
-                        "Amann Malik",
-                        "heyooo"
-                },
-                new String[]{
-                        "123",
-                        "Abraham Lincoln",
-                        "test",
-                        "1000000000",
-                        "false",
-                        "Abraham Lincoln",
-                        "hello"
-                },
-                new String[]{
-                        "420",
-                        "Poopy McFartFace",
-                        "test",
-                        "1111111111",
-                        "false",
-                        "George Washington",
-                        "helloworld"
-                },
-                new String[]{
-                        "1337",
-                        "Elite H4x0r",
-                        "hacker",
-                        "1234567890",
-                        "true",
-                        "Abraham Lincoln",
-                        "hey"
-                }
-        );
+        List<String[]> testRecords = Files.lines(Paths.get("src", "test", "resources", "test.csv"))
+                .map(line -> line.split(",", -1))
+                .collect(Collectors.toList());
 
         RecordKeyScanner<TestKeyType> scanner = RecordKeyScanner.createBuilder(TestKeyType.class)
                 .withKeyColumn(1, TestKeyType.CUSTOMER)
