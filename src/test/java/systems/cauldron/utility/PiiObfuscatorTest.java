@@ -5,7 +5,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +30,9 @@ public class PiiObfuscatorTest {
 
     @Test
     public void basicTest() throws IOException {
+        Path testFile = Paths.get("src", "test", "resources", "test.csv");
 
-        List<String[]> testRecords = Files.lines(Paths.get("src", "test", "resources", "test.csv"))
-                .map(line -> line.split(",", -1))
-                .collect(Collectors.toList());
+        FileObfuscator obfuscator = new FileObfuscator(testFile, ",");
 
         RecordKeyScanner<TestKeyType> scanner = RecordKeyScanner.createBuilder(TestKeyType.class)
                 .withKeyColumn(1, TestKeyType.CUSTOMER)
@@ -39,7 +40,7 @@ public class PiiObfuscatorTest {
                 .withKeyColumn(5, TestKeyType.CUSTOMER)
                 .build();
 
-        testRecords.forEach(scanner::scan);
+        obfuscator.scan(scanner);
 
         Map<String, String> customerKeymap = mapKeysToUuid(scanner.getResults(TestKeyType.CUSTOMER));
         Map<String, String> accountKeymap = mapKeysToUuid(scanner.getResults(TestKeyType.ACCOUNT));
@@ -50,18 +51,30 @@ public class PiiObfuscatorTest {
                 .withKeyColumn(5, customerKeymap)
                 .build();
 
-        testRecords.forEach(rewriter::rewrite);
+        Path obfuscatedFile = null;
+        List<String[]> obfuscatedLines;
+        try {
+            obfuscatedFile = Files.createTempFile(null, null);
+            obfuscator.rewrite(rewriter, obfuscatedFile);
+            obfuscatedLines = readLines(obfuscatedFile);
+        } finally {
+            if (obfuscatedFile != null) {
+                Files.delete(obfuscatedFile);
+            }
+        }
 
-        assertNotEquals("Amann Malik", testRecords.get(0)[1]);
-        assertNotEquals("1234567890", testRecords.get(0)[3]);
-        assertNotEquals("George Washington", testRecords.get(0)[5]);
+        List<String[]> originalLines = readLines(testFile);
 
-        assertNotEquals("George Washington", testRecords.get(1)[1]);
-        assertNotEquals("1200000", testRecords.get(1)[3]);
-        assertNotEquals("Amann Malik", testRecords.get(1)[5]);
+        assertNotEquals(originalLines.get(0)[1], obfuscatedLines.get(0)[1]);
+        assertNotEquals(originalLines.get(0)[3], obfuscatedLines.get(0)[3]);
+        assertNotEquals(originalLines.get(0)[5], obfuscatedLines.get(0)[5]);
 
-        assertEquals(testRecords.get(0)[1], testRecords.get(1)[5]);
-        assertEquals(testRecords.get(0)[5], testRecords.get(1)[1]);
+        assertNotEquals(originalLines.get(1)[1], obfuscatedLines.get(1)[1]);
+        assertNotEquals(originalLines.get(1)[3], obfuscatedLines.get(1)[3]);
+        assertNotEquals(originalLines.get(1)[5], obfuscatedLines.get(1)[5]);
+
+        assertEquals(obfuscatedLines.get(0)[1], obfuscatedLines.get(1)[5]);
+        assertEquals(obfuscatedLines.get(0)[5], obfuscatedLines.get(1)[1]);
 
     }
 
@@ -72,5 +85,12 @@ public class PiiObfuscatorTest {
                         k -> UUID.randomUUID().toString().replace("-", "")
                 )
         );
+    }
+
+    private static List<String[]> readLines(Path path) throws IOException {
+        return Files.lines(path, StandardCharsets.UTF_8)
+                .map(line -> line.split(",", -1))
+                .collect(Collectors.toList());
+
     }
 }
