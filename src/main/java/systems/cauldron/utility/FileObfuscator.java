@@ -6,24 +6,39 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class FileObfuscator {
+public abstract class FileObfuscator<T extends Enum<T>> {
 
-    private final Path source;
-    private final String delimiter;
+    private final Map<Integer, T> columnKeyTypes;
+    private final RecordKeyScanner<T> scanner;
 
-    public FileObfuscator(Path source, String delimiter) {
-        this.source = source;
-        this.delimiter = delimiter;
+    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes) {
+        this.columnKeyTypes = columnKeyTypes;
+        RecordKeyScanner.Builder<T> scannerBuilder = RecordKeyScanner.createBuilder(clazz);
+        columnKeyTypes.forEach(scannerBuilder::setKeyColumn);
+        this.scanner = scannerBuilder.build();
     }
 
-    public void scan(RecordKeyScanner scanner) throws IOException {
+    public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
         Files.lines(source, StandardCharsets.UTF_8)
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
-    }
 
-    public void rewrite(RecordKeyRewriter rewriter, Path destination) throws IOException {
+        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets().entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> getKeyMap(e.getValue())));
+
+        RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
+        columnKeyTypes.forEach((index, keyType) -> {
+            Map<String, String> keyMap = scannerKeymaps.get(keyType);
+            rewriterBuilder.withKeyColumn(index, keyMap);
+        });
+        RecordKeyRewriter rewriter = rewriterBuilder.build();
+
         try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             Files.lines(source, StandardCharsets.UTF_8)
                     .map(line -> line.split(delimiter, -1))
@@ -39,4 +54,6 @@ public class FileObfuscator {
                     });
         }
     }
+
+    public abstract Map<String, String> getKeyMap(Set<String> keys);
 }

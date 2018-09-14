@@ -11,7 +11,7 @@ public class RecordKeyRewriter {
         this.rewriters = rewriters;
     }
 
-    public void rewrite(String[] record) {
+    void rewrite(String[] record) {
         for (ColumnKeyRewriter rewriter : rewriters) {
             rewriter.rewrite(record);
         }

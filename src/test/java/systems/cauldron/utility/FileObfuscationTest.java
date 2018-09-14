@@ -9,16 +9,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class PiiObfuscatorTest {
+public class FileObfuscationTest {
 
     @BeforeClass
     public static void setup() {
@@ -30,40 +29,30 @@ public class PiiObfuscatorTest {
 
     @Test
     public void basicTest() throws IOException {
-        Path testFile = Paths.get("src", "test", "resources", "test.csv");
 
-        FileObfuscator obfuscator = new FileObfuscator(testFile, ",");
+        Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
-        RecordKeyScanner<TestKeyType> scanner = RecordKeyScanner.createBuilder(TestKeyType.class)
-                .withKeyColumn(1, TestKeyType.CUSTOMER)
-                .withKeyColumn(3, TestKeyType.ACCOUNT)
-                .withKeyColumn(5, TestKeyType.CUSTOMER)
-                .build();
+        List<String[]> originalLines = readLines(originalFile);
 
-        obfuscator.scan(scanner);
+        Map<Integer, TestKeyType> layout = new HashMap<>();
+        layout.put(1, TestKeyType.CUSTOMER);
+        layout.put(3, TestKeyType.ACCOUNT);
+        layout.put(5, TestKeyType.CUSTOMER);
 
-        Map<String, String> customerKeymap = mapKeysToUuid(scanner.getResults(TestKeyType.CUSTOMER));
-        Map<String, String> accountKeymap = mapKeysToUuid(scanner.getResults(TestKeyType.ACCOUNT));
+        FileObfuscator<TestKeyType> obfuscator = new FileUuidObfuscator<>(TestKeyType.class, layout);
 
-        RecordKeyRewriter rewriter = RecordKeyRewriter.createBuilder()
-                .withKeyColumn(1, customerKeymap)
-                .withKeyColumn(3, accountKeymap)
-                .withKeyColumn(5, customerKeymap)
-                .build();
+        List<String[]> obfuscatedLines;
 
         Path obfuscatedFile = null;
-        List<String[]> obfuscatedLines;
         try {
             obfuscatedFile = Files.createTempFile(null, null);
-            obfuscator.rewrite(rewriter, obfuscatedFile);
+            obfuscator.obfuscate(",", originalFile, obfuscatedFile);
             obfuscatedLines = readLines(obfuscatedFile);
         } finally {
             if (obfuscatedFile != null) {
                 Files.delete(obfuscatedFile);
             }
         }
-
-        List<String[]> originalLines = readLines(testFile);
 
         assertNotEquals(originalLines.get(0)[1], obfuscatedLines.get(0)[1]);
         assertNotEquals(originalLines.get(0)[3], obfuscatedLines.get(0)[3]);
@@ -78,19 +67,11 @@ public class PiiObfuscatorTest {
 
     }
 
-    private static Map<String, String> mapKeysToUuid(Set<String> keys) {
-        return keys.stream().collect(
-                Collectors.toMap(
-                        k -> k,
-                        k -> UUID.randomUUID().toString().replace("-", "")
-                )
-        );
-    }
-
     private static List<String[]> readLines(Path path) throws IOException {
-        return Files.lines(path, StandardCharsets.UTF_8)
+        List<String[]> collect = Files.lines(path, StandardCharsets.UTF_8)
                 .map(line -> line.split(",", -1))
                 .collect(Collectors.toList());
-
+        System.err.println("\n" + collect.stream().map(fields -> String.join(",", fields)).collect(Collectors.joining("\n")));
+        return collect;
     }
 }

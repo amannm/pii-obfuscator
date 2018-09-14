@@ -18,8 +18,12 @@ public class RecordKeyScanner<T extends Enum<T>> {
         }
     }
 
-    public Set<String> getResults(T type) {
+    public Set<String> getKeys(T type) {
         return Collections.unmodifiableSet(keysets.get(type));
+    }
+
+    public Map<T, Set<String>> getKeysets() {
+        return Collections.unmodifiableMap(keysets);
     }
 
     public static <U extends Enum<U>> Builder<U> createBuilder(Class<U> clazz) {
@@ -52,7 +56,7 @@ public class RecordKeyScanner<T extends Enum<T>> {
             keyColumnScanners = new HashMap<>();
         }
 
-        public Builder<T> withKeyColumn(int index, T type) {
+        public Builder<T> setKeyColumn(int index, T type) {
             keyColumnScanners.put(index, keysets.computeIfAbsent(type, t -> new HashSet<>()));
             return this;
         }
