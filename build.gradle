@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group 'systems.cauldron'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 10
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    //logging
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7+'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7+'
+
+    //csv parsing
+    compile group: 'com.univocity', name: 'univocity-parsers', version: '2+'
+
+    //unit testing
+    testCompile group: 'junit', name: 'junit', version: '4+'
+
+}
