@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class FileObfuscator<T extends Enum<T>> {
 
@@ -27,10 +26,7 @@ public abstract class FileObfuscator<T extends Enum<T>> {
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets().entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> getKeyMap(e.getValue())));
+        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets(this::getKeyMap);
 
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
         columnKeyTypes.forEach((index, keyType) -> {

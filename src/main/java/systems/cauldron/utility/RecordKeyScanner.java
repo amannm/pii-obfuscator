@@ -1,6 +1,8 @@
 package systems.cauldron.utility;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RecordKeyScanner<T extends Enum<T>> {
 
@@ -22,8 +24,11 @@ public class RecordKeyScanner<T extends Enum<T>> {
         return Collections.unmodifiableSet(keysets.get(type));
     }
 
-    public Map<T, Set<String>> getKeysets() {
-        return Collections.unmodifiableMap(keysets);
+    public Map<T, Map<String, String>> getKeysets(Function<Set<String>, Map<String, String>> mapper) {
+        return keysets.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        Map.Entry::getKey,
+                        e -> mapper.apply(e.getValue())));
     }
 
     public static <U extends Enum<U>> Builder<U> createBuilder(Class<U> clazz) {
