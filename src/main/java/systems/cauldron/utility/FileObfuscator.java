@@ -35,12 +35,15 @@ public class FileObfuscator<T extends Enum<T>> {
                 Map.Entry::getKey,
                 e -> {
                     Function<String, String> keyMapper = keyMappers.get(e.getKey());
+                    if (keyMapper == null) {
+                        throw new KeyTypeMapperNotFoundException(e.getKey().toString());
+                    }
                     return e.getValue().stream().collect(Collectors.toMap(
                             k -> k,
                             k -> {
                                 String obfuscatedKey = keyMapper.apply(k);
                                 if (obfuscatedKey == null) {
-                                    throw new UnmappedKeyException(k);
+                                    throw new ObfuscatedKeyNotFoundException(k);
                                 }
                                 return obfuscatedKey;
                             }));

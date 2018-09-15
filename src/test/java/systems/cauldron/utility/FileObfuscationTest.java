@@ -70,7 +70,29 @@ public class FileObfuscationTest {
 
         try {
             scanAndObfuscate(originalFile, layout, typeMappers);
-        } catch (UnmappedKeyException e) {
+        } catch (ObfuscatedKeyNotFoundException e) {
+            return;
+        }
+
+        fail();
+
+    }
+
+    @Test
+    public void exception_thrown_if_any_missing_type_mapper() throws IOException {
+
+        Path originalFile = Paths.get("src", "test", "resources", "test.csv");
+
+        Map<Integer, TestEntityKeyType> layout = new HashMap<>();
+        layout.put(1, TestEntityKeyType.CUSTOMER);
+        layout.put(3, TestEntityKeyType.ACCOUNT);
+        layout.put(5, TestEntityKeyType.CUSTOMER);
+
+        Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
+
+        try {
+            scanAndObfuscate(originalFile, layout, typeMappers);
+        } catch (KeyTypeMapperNotFoundException e) {
             return;
         }
 
