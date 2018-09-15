@@ -7,7 +7,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,8 +30,10 @@ public class FileObfuscationTest {
         layout.put(5, TestEntityKeyType.CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
-        Map<TestEntityKeyType, Function<String, String>> typeMappers = Arrays.stream(TestEntityKeyType.values()).collect(Collectors.toMap(t -> t, t -> fileLocalUuidMapper));
 
+        Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
+        typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
+        typeMappers.put(TestEntityKeyType.ACCOUNT, fileLocalUuidMapper);
 
         List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, typeMappers);
 
@@ -66,7 +71,10 @@ public class FileObfuscationTest {
             }
             return UUID.randomUUID().toString().replace("-", "");
         };
-        Map<TestEntityKeyType, Function<String, String>> typeMappers = Arrays.stream(TestEntityKeyType.values()).collect(Collectors.toMap(t -> t, t -> brokenFileLocalUuidMapper));
+
+        Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
+        typeMappers.put(TestEntityKeyType.CUSTOMER, brokenFileLocalUuidMapper);
+        typeMappers.put(TestEntityKeyType.ACCOUNT, brokenFileLocalUuidMapper);
 
         try {
             scanAndObfuscate(originalFile, layout, typeMappers);
@@ -88,7 +96,10 @@ public class FileObfuscationTest {
         layout.put(3, TestEntityKeyType.ACCOUNT);
         layout.put(5, TestEntityKeyType.CUSTOMER);
 
+        Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
+
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
+        typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
 
         try {
             scanAndObfuscate(originalFile, layout, typeMappers);
