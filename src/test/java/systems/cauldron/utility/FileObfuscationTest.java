@@ -37,8 +37,10 @@ public class FileObfuscationTest {
         layout.put(5, TestKeyType.CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
+        Map<TestKeyType, Function<String, String>> typeMappers = Arrays.stream(TestKeyType.values()).collect(Collectors.toMap(t -> t, t -> fileLocalUuidMapper));
 
-        List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, fileLocalUuidMapper);
+
+        List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, typeMappers);
 
         List<String[]> originalLines = readLines(originalFile);
 
@@ -74,9 +76,10 @@ public class FileObfuscationTest {
             }
             return UUID.randomUUID().toString().replace("-", "");
         };
+        Map<TestKeyType, Function<String, String>> typeMappers = Arrays.stream(TestKeyType.values()).collect(Collectors.toMap(t -> t, t -> brokenFileLocalUuidMapper));
 
         try {
-            scanAndObfuscate(originalFile, layout, brokenFileLocalUuidMapper);
+            scanAndObfuscate(originalFile, layout, typeMappers);
         } catch (UnmappedKeyException e) {
             return;
         }
@@ -85,9 +88,7 @@ public class FileObfuscationTest {
 
     }
 
-    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, Function<String, String> mapper) throws IOException {
-
-        Map<TestKeyType, Function<String, String>> typeMappers = Arrays.stream(TestKeyType.values()).collect(Collectors.toMap(t -> t, t -> mapper));
+    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, Map<TestKeyType, Function<String, String>> typeMappers) throws IOException {
 
         FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, typeMappers);
 
