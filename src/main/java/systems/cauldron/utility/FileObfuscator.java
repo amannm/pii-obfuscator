@@ -14,14 +14,14 @@ public class FileObfuscator<T extends Enum<T>> {
 
     private final Map<Integer, T> columnKeyTypes;
     private final RecordKeyScanner<T> scanner;
-    private final Function<String, String> mapper;
+    private final Map<T, Function<String, String>> keyMappers;
 
-    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes, Function<String, String> mapper) {
+    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes, Map<T, Function<String, String>> keyMappers) {
         this.columnKeyTypes = columnKeyTypes;
         RecordKeyScanner.Builder<T> scannerBuilder = RecordKeyScanner.createBuilder(clazz);
         columnKeyTypes.forEach(scannerBuilder::setKeyColumn);
         this.scanner = scannerBuilder.build();
-        this.mapper = mapper;
+        this.keyMappers = keyMappers;
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
@@ -32,15 +32,18 @@ public class FileObfuscator<T extends Enum<T>> {
 
         Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets().entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,
-                e -> e.getValue().stream().collect(Collectors.toMap(
+                e -> {
+                    Function<String, String> keyTypeMapper = keyMappers.get(e.getKey());
+                    return e.getValue().stream().collect(Collectors.toMap(
                         k -> k,
                         k -> {
-                            String obfuscatedKey = mapper.apply(k);
+                            String obfuscatedKey = keyTypeMapper.apply(k);
                             if (obfuscatedKey == null) {
                                 throw new UnmappedKeyException(k);
                             }
                             return obfuscatedKey;
-                        }))));
+                        }));
+                }));
 
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
         columnKeyTypes.forEach((i, t) -> rewriterBuilder.setKeyColumn(i, scannerKeymaps.get(t)));

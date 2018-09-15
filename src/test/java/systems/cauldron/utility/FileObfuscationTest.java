@@ -9,10 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,7 +85,9 @@ public class FileObfuscationTest {
 
     private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, Function<String, String> mapper) throws IOException {
 
-        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, mapper);
+        Map<TestKeyType, Function<String, String>> typeMappers = Arrays.stream(TestKeyType.values()).collect(Collectors.toMap(t -> t, t -> mapper));
+
+        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, typeMappers);
 
         Path obfuscatedFile = null;
         try {
