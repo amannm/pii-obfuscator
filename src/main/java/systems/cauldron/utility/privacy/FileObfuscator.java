@@ -14,16 +14,21 @@ import java.util.stream.Collectors;
 public class FileObfuscator<T extends Enum<T>> {
 
     private final Map<Integer, T> columnKeyTypes;
-    private final RecordKeyScanner<T> scanner;
     private final Map<T, Function<String, String>> keyMappers;
 
     public FileObfuscator(Map<Integer, T> columnKeyTypes, Map<T, Function<String, String>> keyMappers) {
         this.columnKeyTypes = columnKeyTypes;
-        this.scanner = new RecordKeyScanner<>(columnKeyTypes);
         this.keyMappers = keyMappers;
+        for (T type : columnKeyTypes.values()) {
+            if (!keyMappers.containsKey(type)) {
+                throw new KeyTypeMapperNotFoundException(type.toString());
+            }
+        }
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
+
+        RecordKeyScanner<T> scanner = new RecordKeyScanner<>(columnKeyTypes);
 
         Files.lines(source, StandardCharsets.UTF_8)
                 .map(line -> line.split(delimiter, -1))
@@ -35,9 +40,6 @@ public class FileObfuscator<T extends Enum<T>> {
                 Map.Entry::getKey,
                 e -> {
                     Function<String, String> keyMapper = keyMappers.get(e.getKey());
-                    if (keyMapper == null) {
-                        throw new KeyTypeMapperNotFoundException(e.getKey().toString());
-                    }
                     return e.getValue().stream().collect(Collectors.toMap(
                             k -> k,
                             k -> {
