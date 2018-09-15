@@ -17,7 +17,14 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class FileObfuscationTest {
+public class FlatFileObfuscationTest {
+
+    public enum TestEntityKeyType {
+        CUSTOMER,
+        PLANE,
+        ACCOUNT,
+        HORSE
+    }
 
     @Test
     public void all_pii_must_be_obfuscated() throws IOException {
@@ -120,7 +127,7 @@ public class FileObfuscationTest {
     }
 
     private List<String[]> scanAndObfuscateFile(Path originalFile, KeyTransformer<TestEntityKeyType> transformer) throws IOException {
-        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(transformer);
+        FlatFileObfuscator<TestEntityKeyType> obfuscator = new FlatFileObfuscator<>(transformer);
         Path obfuscatedFile = null;
         try {
             obfuscatedFile = Files.createTempFile(null, null);

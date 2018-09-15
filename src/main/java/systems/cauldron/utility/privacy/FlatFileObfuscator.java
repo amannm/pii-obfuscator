@@ -8,11 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
-public class FileObfuscator<T extends Enum<T>> {
+public class FlatFileObfuscator<T extends Enum<T>> {
 
     private final KeyTransformer<T> transformer;
 
-    public FileObfuscator(KeyTransformer<T> transformer) {
+    public FlatFileObfuscator(KeyTransformer<T> transformer) {
         this.transformer = transformer;
     }
 
