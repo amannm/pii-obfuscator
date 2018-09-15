@@ -1,7 +1,5 @@
 package systems.cauldron.utility;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,14 +15,6 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 public class FileObfuscationTest {
-
-    @BeforeClass
-    public static void setup() {
-    }
-
-    @AfterClass
-    public static void cleanup() {
-    }
 
     @Test
     public void all_pii_must_be_obfuscated() throws IOException {
