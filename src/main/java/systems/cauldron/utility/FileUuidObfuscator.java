@@ -13,11 +13,8 @@ public class FileUuidObfuscator<T extends Enum<T>> extends FileObfuscator<T> {
 
     @Override
     public Map<String, String> getKeyMap(Set<String> keys) {
-        return keys.stream().collect(
-                Collectors.toMap(
-                        k -> k,
-                        k -> UUID.randomUUID().toString().replace("-", "")
-                )
-        );
+        return keys.stream().collect(Collectors.toMap(
+                k -> k,
+                k -> UUID.randomUUID().toString().replace("-", "")));
     }
 }
