@@ -1,4 +1,4 @@
-package systems.cauldron.utility;
+package systems.cauldron.utility.privacy;
 
 import java.util.*;
 

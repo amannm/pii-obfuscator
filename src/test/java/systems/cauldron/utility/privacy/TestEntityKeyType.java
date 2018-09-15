@@ -1,4 +1,4 @@
-package systems.cauldron.utility;
+package systems.cauldron.utility.privacy;
 
 public enum TestEntityKeyType {
     CUSTOMER,
