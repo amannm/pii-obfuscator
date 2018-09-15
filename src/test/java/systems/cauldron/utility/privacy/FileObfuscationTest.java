@@ -119,7 +119,8 @@ public class FileObfuscationTest {
 
     private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestEntityKeyType> layout, Map<TestEntityKeyType, Function<String, String>> typeMappers) throws IOException {
 
-        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(layout, typeMappers);
+        LocalKeyTransformer<TestEntityKeyType> localTestTransformer = new LocalKeyTransformer<>(layout, typeMappers);
+        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(localTestTransformer);
 
         Path obfuscatedFile = null;
         try {
