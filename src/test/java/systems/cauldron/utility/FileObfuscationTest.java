@@ -15,8 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class FileObfuscationTest {
 
@@ -29,33 +28,20 @@ public class FileObfuscationTest {
     }
 
     @Test
-    public void basicTest() throws IOException {
-
-        KeyMapper fileLocalUuidMapper = keys -> keys.map(k -> new KeyPair(k, UUID.randomUUID().toString().replace("-", "")));
+    public void all_pii_must_be_obfuscated() throws IOException {
 
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
-
-        List<String[]> originalLines = readLines(originalFile);
 
         Map<Integer, TestKeyType> layout = new HashMap<>();
         layout.put(1, TestKeyType.CUSTOMER);
         layout.put(3, TestKeyType.ACCOUNT);
         layout.put(5, TestKeyType.CUSTOMER);
 
-        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, fileLocalUuidMapper);
+        KeyMapper fileLocalUuidMapper = keys -> keys.map(k -> new KeyPair(k, UUID.randomUUID().toString().replace("-", "")));
 
-        List<String[]> obfuscatedLines;
+        List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, fileLocalUuidMapper);
 
-        Path obfuscatedFile = null;
-        try {
-            obfuscatedFile = Files.createTempFile(null, null);
-            obfuscator.obfuscate(",", originalFile, obfuscatedFile);
-            obfuscatedLines = readLines(obfuscatedFile);
-        } finally {
-            if (obfuscatedFile != null) {
-                Files.delete(obfuscatedFile);
-            }
-        }
+        List<String[]> originalLines = readLines(originalFile);
 
         assertNotEquals(originalLines.get(0)[1], obfuscatedLines.get(0)[1]);
         assertNotEquals(originalLines.get(0)[3], obfuscatedLines.get(0)[3]);
@@ -67,6 +53,50 @@ public class FileObfuscationTest {
 
         assertEquals(obfuscatedLines.get(0)[1], obfuscatedLines.get(1)[5]);
         assertEquals(obfuscatedLines.get(0)[5], obfuscatedLines.get(1)[1]);
+
+    }
+
+    @Test
+    public void exception_thrown_if_any_scanned_keys_unmapped() throws IOException {
+
+        Path originalFile = Paths.get("src", "test", "resources", "test.csv");
+
+        Map<Integer, TestKeyType> layout = new HashMap<>();
+        layout.put(1, TestKeyType.CUSTOMER);
+        layout.put(3, TestKeyType.ACCOUNT);
+        layout.put(5, TestKeyType.CUSTOMER);
+
+        KeyMapper brokenFileLocalUuidMapper = keys -> {
+            List<KeyPair> resultList = keys.map(k -> new KeyPair(k, UUID.randomUUID().toString().replace("-", ""))).collect(Collectors.toList());
+            resultList.remove(0);
+            return resultList.stream();
+        };
+
+        try {
+            scanAndObfuscate(originalFile, layout, brokenFileLocalUuidMapper);
+        } catch (UnmappedKeyException e) {
+            assertTrue(e.getMappedKeyCount() == e.getScannedKeyCount() - 1);
+            return;
+        }
+
+        fail();
+
+    }
+
+    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, KeyMapper mapper) throws IOException {
+
+        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, mapper);
+
+        Path obfuscatedFile = null;
+        try {
+            obfuscatedFile = Files.createTempFile(null, null);
+            obfuscator.obfuscate(",", originalFile, obfuscatedFile);
+            return readLines(obfuscatedFile);
+        } finally {
+            if (obfuscatedFile != null) {
+                Files.delete(obfuscatedFile);
+            }
+        }
 
     }
 

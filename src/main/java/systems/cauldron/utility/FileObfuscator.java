@@ -55,14 +55,21 @@ public class FileObfuscator<T extends Enum<T>> {
         }
     }
 
-    private Map<String, String> getPreparedKeyMap(Set<String> keys) {
-        Map<String, String> keyMap = mapper.apply(keys.stream()).collect(toMap(KeyPair::getOriginalKey, KeyPair::getObfuscatedKey));
-        Set<String> returnedKeys = keyMap.keySet();
-        if (!returnedKeys.containsAll(keys)) {
-            throw new RuntimeException("provided keymap has missing keys");
+    private Map<String, String> getPreparedKeyMap(Set<String> originalKeys) {
+
+        Map<String, String> keyMap = mapper.apply(originalKeys.stream())
+                .filter(p -> originalKeys.contains(p.getOriginalKey()))
+                .collect(toMap(KeyPair::getOriginalKey, KeyPair::getObfuscatedKey));
+
+        int keyMapSize = keyMap.size();
+        int originalKeysSize = originalKeys.size();
+
+        if (keyMapSize != originalKeysSize) {
+            throw new UnmappedKeyException(originalKeysSize, keyMapSize);
         }
-        returnedKeys.retainAll(keys);
+
         return keyMap;
+
     }
 
 }
