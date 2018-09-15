@@ -2,7 +2,7 @@ package systems.cauldron.utility.privacy;
 
 import java.util.Map;
 
-abstract class KeyTransformer<T extends Enum<T>> {
+public abstract class KeyTransformer<T extends Enum<T>> {
 
     private final Map<Integer, T> columnKeyTypeMap;
 
