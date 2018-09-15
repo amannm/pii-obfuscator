@@ -39,7 +39,7 @@ public class FileObfuscationTest {
         layout.put(3, TestKeyType.ACCOUNT);
         layout.put(5, TestKeyType.CUSTOMER);
 
-        FileObfuscator<TestKeyType> obfuscator = new FileUuidObfuscator<>(TestKeyType.class, layout);
+        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, new FileLocalUuidKeyMapper());
 
         List<String[]> obfuscatedLines;
 

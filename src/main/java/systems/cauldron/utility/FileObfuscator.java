@@ -9,16 +9,20 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class FileObfuscator<T extends Enum<T>> {
+import static java.util.stream.Collectors.toMap;
+
+public class FileObfuscator<T extends Enum<T>> {
 
     private final Map<Integer, T> columnKeyTypes;
     private final RecordKeyScanner<T> scanner;
+    private final KeyMapper mapper;
 
-    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes) {
+    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes, KeyMapper mapper) {
         this.columnKeyTypes = columnKeyTypes;
         RecordKeyScanner.Builder<T> scannerBuilder = RecordKeyScanner.createBuilder(clazz);
         columnKeyTypes.forEach(scannerBuilder::setKeyColumn);
         this.scanner = scannerBuilder.build();
+        this.mapper = mapper;
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
@@ -52,14 +56,13 @@ public abstract class FileObfuscator<T extends Enum<T>> {
     }
 
     private Map<String, String> getPreparedKeyMap(Set<String> keys) {
-        Map<String, String> keyMap = getKeyMap(keys);
-        Set<String> keyMapKeys = keyMap.keySet();
-        if (!keyMapKeys.containsAll(keys)) {
+        Map<String, String> keyMap = mapper.apply(keys.stream()).collect(toMap(KeyPair::getOriginalKey, KeyPair::getObfuscatedKey));
+        Set<String> returnedKeys = keyMap.keySet();
+        if (!returnedKeys.containsAll(keys)) {
             throw new RuntimeException("provided keymap has missing keys");
         }
-        keyMapKeys.retainAll(keys);
+        returnedKeys.retainAll(keys);
         return keyMap;
     }
 
-    protected abstract Map<String, String> getKeyMap(Set<String> keys);
 }
