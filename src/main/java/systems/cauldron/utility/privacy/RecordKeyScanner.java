@@ -4,8 +4,8 @@ import java.util.*;
 
 class RecordKeyScanner<T extends Enum<T>> {
 
-    private final ColumnKeyScanner[] scanners;
     private final Map<T, Set<String>> keysets;
+    private final ColumnKeyScanner[] scanners;
 
     RecordKeyScanner(Map<Integer, T> columnKeyTypes) {
         this.keysets = new HashMap<>();
