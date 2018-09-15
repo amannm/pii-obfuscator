@@ -38,8 +38,9 @@ public class FileObfuscationTest {
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.ACCOUNT, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.HORSE, passThroughMapper);
+        LocalKeyTransformer<TestEntityKeyType> transformer = new LocalKeyTransformer<>(layout, typeMappers);
 
-        List<String[]> obfuscatedLines = scanAndObfuscateLocally(originalFile, layout, typeMappers);
+        List<String[]> obfuscatedLines = scanAndObfuscateFile(originalFile, transformer);
 
         List<String[]> originalLines = readLines(originalFile);
 
@@ -81,9 +82,10 @@ public class FileObfuscationTest {
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
         typeMappers.put(TestEntityKeyType.CUSTOMER, brokenFileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.ACCOUNT, brokenFileLocalUuidMapper);
+        LocalKeyTransformer<TestEntityKeyType> transformer = new LocalKeyTransformer<>(layout, typeMappers);
 
         try {
-            scanAndObfuscateLocally(originalFile, layout, typeMappers);
+            scanAndObfuscateFile(originalFile, transformer);
         } catch (ObfuscatedKeyNotFoundException e) {
             return;
         }
@@ -108,7 +110,7 @@ public class FileObfuscationTest {
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
 
         try {
-            scanAndObfuscateLocally(originalFile, layout, typeMappers);
+            new LocalKeyTransformer<>(layout, typeMappers);
         } catch (KeyTypeMapperNotFoundException e) {
             return;
         }
@@ -117,11 +119,8 @@ public class FileObfuscationTest {
 
     }
 
-    private List<String[]> scanAndObfuscateLocally(Path originalFile, Map<Integer, TestEntityKeyType> layout, Map<TestEntityKeyType, Function<String, String>> typeMappers) throws IOException {
-
-        LocalKeyTransformer<TestEntityKeyType> localTestTransformer = new LocalKeyTransformer<>(layout, typeMappers);
-        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(localTestTransformer);
-
+    private List<String[]> scanAndObfuscateFile(Path originalFile, KeyTransformer<TestEntityKeyType> transformer) throws IOException {
+        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(transformer);
         Path obfuscatedFile = null;
         try {
             obfuscatedFile = Files.createTempFile(null, null);
