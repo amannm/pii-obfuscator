@@ -26,7 +26,7 @@ public abstract class FileObfuscator<T extends Enum<T>> {
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets(this::getKeyMap);
+        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets(this::getValidatedKeyMap);
 
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
         columnKeyTypes.forEach((index, keyType) -> {
@@ -51,5 +51,13 @@ public abstract class FileObfuscator<T extends Enum<T>> {
         }
     }
 
-    public abstract Map<String, String> getKeyMap(Set<String> keys);
+    private Map<String, String> getValidatedKeyMap(Set<String> keys) {
+        Map<String, String> keyMap = getKeyMap(keys);
+        if (!keyMap.keySet().containsAll(keys)) {
+            throw new RuntimeException("provided keymap has missing keys");
+        }
+        return keyMap;
+    }
+
+    protected abstract Map<String, String> getKeyMap(Set<String> keys);
 }
