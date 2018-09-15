@@ -20,10 +20,6 @@ public class RecordKeyScanner<T extends Enum<T>> {
         }
     }
 
-    public Set<String> getKeys(T type) {
-        return Collections.unmodifiableSet(keysets.get(type));
-    }
-
     public Map<T, Map<String, String>> getKeysets(Function<Set<String>, Map<String, String>> mapper) {
         return keysets.entrySet().stream()
                 .collect(Collectors.toUnmodifiableMap(
