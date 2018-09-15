@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +31,8 @@ public class FileObfuscationTest {
     @Test
     public void basicTest() throws IOException {
 
+        KeyMapper fileLocalUuidMapper = keys -> keys.map(k -> new KeyPair(k, UUID.randomUUID().toString().replace("-", "")));
+
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
         List<String[]> originalLines = readLines(originalFile);
@@ -39,7 +42,7 @@ public class FileObfuscationTest {
         layout.put(3, TestKeyType.ACCOUNT);
         layout.put(5, TestKeyType.CUSTOMER);
 
-        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, new FileLocalUuidKeyMapper());
+        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, fileLocalUuidMapper);
 
         List<String[]> obfuscatedLines;
 
