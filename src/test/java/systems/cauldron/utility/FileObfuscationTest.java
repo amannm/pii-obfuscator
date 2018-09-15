@@ -78,7 +78,7 @@ public class FileObfuscationTest {
 
         try {
             scanAndObfuscate(originalFile, layout, brokenFileLocalUuidMapper);
-        } catch (Exception e) {
+        } catch (UnmappedKeyException e) {
             return;
         }
 

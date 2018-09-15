@@ -6,10 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class FileObfuscator<T extends Enum<T>> {
 
@@ -26,11 +26,14 @@ public class FileObfuscator<T extends Enum<T>> {
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
+
         Files.lines(source, StandardCharsets.UTF_8)
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets(this::getPreparedKeyMap);
+        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets().entrySet().stream().collect(Collectors.toUnmodifiableMap(
+                Map.Entry::getKey,
+                e -> prepareKeyMap(e.getValue())));
 
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
         columnKeyTypes.forEach((index, keyType) -> {
@@ -55,16 +58,16 @@ public class FileObfuscator<T extends Enum<T>> {
         }
     }
 
-    private Map<String, String> getPreparedKeyMap(Set<String> scannedKeys) {
-        Map<String, String> keyMap = new HashMap<>(scannedKeys.size());
-        for (String scannedKey : scannedKeys) {
-            String obfuscatedKey = mapper.apply(scannedKey);
-            if (obfuscatedKey == null) {
-                throw new RuntimeException("unmapped keys encountered");
-            }
-            keyMap.put(scannedKey, obfuscatedKey);
-        }
-        return keyMap;
+    private Map<String, String> prepareKeyMap(Set<String> scannedKeys) {
+        return scannedKeys.stream().collect(Collectors.toMap(
+                k -> k,
+                k -> {
+                    String obfuscatedKey = mapper.apply(k);
+                    if (obfuscatedKey == null) {
+                        throw new UnmappedKeyException(k);
+                    }
+                    return obfuscatedKey;
+                }));
     }
 
 }
