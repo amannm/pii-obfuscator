@@ -27,13 +27,17 @@ public class FileObfuscationTest {
         Map<Integer, TestEntityKeyType> layout = new HashMap<>();
         layout.put(1, TestEntityKeyType.CUSTOMER);
         layout.put(3, TestEntityKeyType.ACCOUNT);
+        layout.put(4, TestEntityKeyType.HORSE);
         layout.put(5, TestEntityKeyType.CUSTOMER);
+
+        Function<String, String> passThroughMapper = k -> k;
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.ACCOUNT, fileLocalUuidMapper);
+        typeMappers.put(TestEntityKeyType.HORSE, passThroughMapper);
 
         List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, typeMappers);
 
@@ -51,6 +55,8 @@ public class FileObfuscationTest {
         assertEquals(obfuscatedLines.get(0)[5], obfuscatedLines.get(1)[1]);
 
         assertNotEquals(obfuscatedLines.get(5)[1], obfuscatedLines.get(3)[3]);
+
+        assertEquals(originalLines.get(0)[4], obfuscatedLines.get(0)[4]);
 
     }
 
