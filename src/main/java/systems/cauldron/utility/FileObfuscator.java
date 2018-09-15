@@ -17,11 +17,9 @@ public class FileObfuscator<T extends Enum<T>> {
     private final RecordKeyScanner<T> scanner;
     private final Map<T, Function<String, String>> keyMappers;
 
-    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes, Map<T, Function<String, String>> keyMappers) {
+    public FileObfuscator(Map<Integer, T> columnKeyTypes, Map<T, Function<String, String>> keyMappers) {
         this.columnKeyTypes = columnKeyTypes;
-        RecordKeyScanner.Builder<T> scannerBuilder = RecordKeyScanner.createBuilder(clazz);
-        columnKeyTypes.forEach(scannerBuilder::setKeyColumn);
-        this.scanner = scannerBuilder.build();
+        this.scanner = new RecordKeyScanner<>(columnKeyTypes);
         this.keyMappers = keyMappers;
     }
 
@@ -31,7 +29,7 @@ public class FileObfuscator<T extends Enum<T>> {
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Set<String>> scannedKeysets = scanner.getKeysets();
+        Map<T, Set<String>> scannedKeysets = scanner.getResults();
 
         Map<T, Map<String, String>> scannedKeymaps = scannedKeysets.entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,

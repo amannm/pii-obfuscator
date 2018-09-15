@@ -90,7 +90,7 @@ public class FileObfuscationTest {
 
     private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestEntityKeyType> layout, Map<TestEntityKeyType, Function<String, String>> typeMappers) throws IOException {
 
-        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(TestEntityKeyType.class, layout, typeMappers);
+        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(layout, typeMappers);
 
         Path obfuscatedFile = null;
         try {
