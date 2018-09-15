@@ -31,7 +31,7 @@ public abstract class FileObfuscator<T extends Enum<T>> {
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
         columnKeyTypes.forEach((index, keyType) -> {
             Map<String, String> keyMap = scannerKeymaps.get(keyType);
-            rewriterBuilder.withKeyColumn(index, keyMap);
+            rewriterBuilder.setKeyColumn(index, keyMap);
         });
         RecordKeyRewriter rewriter = rewriterBuilder.build();
 

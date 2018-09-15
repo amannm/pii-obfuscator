@@ -45,7 +45,7 @@ public class RecordKeyRewriter {
             keyColumnMaps = new HashMap<>();
         }
 
-        public Builder withKeyColumn(int index, Map<String, String> keymap) {
+        public Builder setKeyColumn(int index, Map<String, String> keymap) {
             keyColumnMaps.put(index, keymap);
             return this;
         }
