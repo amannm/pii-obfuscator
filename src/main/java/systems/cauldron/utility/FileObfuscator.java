@@ -35,14 +35,14 @@ public class FileObfuscator<T extends Enum<T>> {
                 e -> {
                     Function<String, String> keyTypeMapper = keyMappers.get(e.getKey());
                     return e.getValue().stream().collect(Collectors.toMap(
-                        k -> k,
-                        k -> {
-                            String obfuscatedKey = keyTypeMapper.apply(k);
-                            if (obfuscatedKey == null) {
-                                throw new UnmappedKeyException(k);
-                            }
-                            return obfuscatedKey;
-                        }));
+                            k -> k,
+                            k -> {
+                                String obfuscatedKey = keyTypeMapper.apply(k);
+                                if (obfuscatedKey == null) {
+                                    throw new UnmappedKeyException(k);
+                                }
+                                return obfuscatedKey;
+                            }));
                 }));
 
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
