@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,13 +32,18 @@ public class FileObfuscator<T extends Enum<T>> {
 
         Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets().entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,
-                e -> prepareKeyMap(e.getValue())));
+                e -> e.getValue().stream().collect(Collectors.toMap(
+                        k -> k,
+                        k -> {
+                            String obfuscatedKey = mapper.apply(k);
+                            if (obfuscatedKey == null) {
+                                throw new UnmappedKeyException(k);
+                            }
+                            return obfuscatedKey;
+                        }))));
 
         RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
-        columnKeyTypes.forEach((index, keyType) -> {
-            Map<String, String> keyMap = scannerKeymaps.get(keyType);
-            rewriterBuilder.setKeyColumn(index, keyMap);
-        });
+        columnKeyTypes.forEach((i, t) -> rewriterBuilder.setKeyColumn(i, scannerKeymaps.get(t)));
         RecordKeyRewriter rewriter = rewriterBuilder.build();
 
         try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -56,18 +60,6 @@ public class FileObfuscator<T extends Enum<T>> {
                         }
                     });
         }
-    }
-
-    private Map<String, String> prepareKeyMap(Set<String> scannedKeys) {
-        return scannedKeys.stream().collect(Collectors.toMap(
-                k -> k,
-                k -> {
-                    String obfuscatedKey = mapper.apply(k);
-                    if (obfuscatedKey == null) {
-                        throw new UnmappedKeyException(k);
-                    }
-                    return obfuscatedKey;
-                }));
     }
 
 }
