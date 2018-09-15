@@ -1,6 +1,6 @@
 package systems.cauldron.utility;
 
-public enum TestKeyType {
+public enum TestEntityKeyType {
     CUSTOMER,
     ACCOUNT
 }

@@ -31,13 +31,13 @@ public class FileObfuscationTest {
 
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
-        Map<Integer, TestKeyType> layout = new HashMap<>();
-        layout.put(1, TestKeyType.CUSTOMER);
-        layout.put(3, TestKeyType.ACCOUNT);
-        layout.put(5, TestKeyType.CUSTOMER);
+        Map<Integer, TestEntityKeyType> layout = new HashMap<>();
+        layout.put(1, TestEntityKeyType.CUSTOMER);
+        layout.put(3, TestEntityKeyType.ACCOUNT);
+        layout.put(5, TestEntityKeyType.CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
-        Map<TestKeyType, Function<String, String>> typeMappers = Arrays.stream(TestKeyType.values()).collect(Collectors.toMap(t -> t, t -> fileLocalUuidMapper));
+        Map<TestEntityKeyType, Function<String, String>> typeMappers = Arrays.stream(TestEntityKeyType.values()).collect(Collectors.toMap(t -> t, t -> fileLocalUuidMapper));
 
 
         List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, typeMappers);
@@ -64,10 +64,10 @@ public class FileObfuscationTest {
 
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
-        Map<Integer, TestKeyType> layout = new HashMap<>();
-        layout.put(1, TestKeyType.CUSTOMER);
-        layout.put(3, TestKeyType.ACCOUNT);
-        layout.put(5, TestKeyType.CUSTOMER);
+        Map<Integer, TestEntityKeyType> layout = new HashMap<>();
+        layout.put(1, TestEntityKeyType.CUSTOMER);
+        layout.put(3, TestEntityKeyType.ACCOUNT);
+        layout.put(5, TestEntityKeyType.CUSTOMER);
 
         AtomicInteger count = new AtomicInteger(0);
         Function<String, String> brokenFileLocalUuidMapper = k -> {
@@ -76,7 +76,7 @@ public class FileObfuscationTest {
             }
             return UUID.randomUUID().toString().replace("-", "");
         };
-        Map<TestKeyType, Function<String, String>> typeMappers = Arrays.stream(TestKeyType.values()).collect(Collectors.toMap(t -> t, t -> brokenFileLocalUuidMapper));
+        Map<TestEntityKeyType, Function<String, String>> typeMappers = Arrays.stream(TestEntityKeyType.values()).collect(Collectors.toMap(t -> t, t -> brokenFileLocalUuidMapper));
 
         try {
             scanAndObfuscate(originalFile, layout, typeMappers);
@@ -88,9 +88,9 @@ public class FileObfuscationTest {
 
     }
 
-    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, Map<TestKeyType, Function<String, String>> typeMappers) throws IOException {
+    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestEntityKeyType> layout, Map<TestEntityKeyType, Function<String, String>> typeMappers) throws IOException {
 
-        FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, typeMappers);
+        FileObfuscator<TestEntityKeyType> obfuscator = new FileObfuscator<>(TestEntityKeyType.class, layout, typeMappers);
 
         Path obfuscatedFile = null;
         try {
