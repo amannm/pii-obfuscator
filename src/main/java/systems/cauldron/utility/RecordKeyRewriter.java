@@ -3,11 +3,11 @@ package systems.cauldron.utility;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class RecordKeyRewriter<T> {
+class RecordKeyRewriter<T> {
 
     private final ColumnKeyRewriter[] rewriters;
 
-    public RecordKeyRewriter(Map<Integer, T> columnKeyTypes, Map<T, Map<String, String>> typeKeymaps) {
+    RecordKeyRewriter(Map<Integer, T> columnKeyTypes, Map<T, Map<String, String>> typeKeymaps) {
         this.rewriters = columnKeyTypes.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> typeKeymaps.get(e.getValue())))
                 .entrySet().stream()
