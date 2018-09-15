@@ -6,18 +6,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toMap;
+import java.util.function.Function;
 
 public class FileObfuscator<T extends Enum<T>> {
 
     private final Map<Integer, T> columnKeyTypes;
     private final RecordKeyScanner<T> scanner;
-    private final KeyMapper mapper;
+    private final Function<String, String> mapper;
 
-    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes, KeyMapper mapper) {
+    public FileObfuscator(Class<T> clazz, Map<Integer, T> columnKeyTypes, Function<String, String> mapper) {
         this.columnKeyTypes = columnKeyTypes;
         RecordKeyScanner.Builder<T> scannerBuilder = RecordKeyScanner.createBuilder(clazz);
         columnKeyTypes.forEach(scannerBuilder::setKeyColumn);
@@ -55,21 +55,16 @@ public class FileObfuscator<T extends Enum<T>> {
         }
     }
 
-    private Map<String, String> getPreparedKeyMap(Set<String> originalKeys) {
-
-        Map<String, String> keyMap = mapper.apply(originalKeys.stream())
-                .filter(p -> originalKeys.contains(p.getOriginalKey()))
-                .collect(toMap(KeyPair::getOriginalKey, KeyPair::getObfuscatedKey));
-
-        int keyMapSize = keyMap.size();
-        int originalKeysSize = originalKeys.size();
-
-        if (keyMapSize != originalKeysSize) {
-            throw new UnmappedKeyException(originalKeysSize, keyMapSize);
+    private Map<String, String> getPreparedKeyMap(Set<String> scannedKeys) {
+        Map<String, String> keyMap = new HashMap<>(scannedKeys.size());
+        for (String scannedKey : scannedKeys) {
+            String obfuscatedKey = mapper.apply(scannedKey);
+            if (obfuscatedKey == null) {
+                throw new RuntimeException("unmapped keys encountered");
+            }
+            keyMap.put(scannedKey, obfuscatedKey);
         }
-
         return keyMap;
-
     }
 
 }

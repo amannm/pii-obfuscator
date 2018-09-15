@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -37,7 +39,7 @@ public class FileObfuscationTest {
         layout.put(3, TestKeyType.ACCOUNT);
         layout.put(5, TestKeyType.CUSTOMER);
 
-        KeyMapper fileLocalUuidMapper = keys -> keys.map(k -> new KeyPair(k, UUID.randomUUID().toString().replace("-", "")));
+        Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
 
         List<String[]> obfuscatedLines = scanAndObfuscate(originalFile, layout, fileLocalUuidMapper);
 
@@ -66,16 +68,17 @@ public class FileObfuscationTest {
         layout.put(3, TestKeyType.ACCOUNT);
         layout.put(5, TestKeyType.CUSTOMER);
 
-        KeyMapper brokenFileLocalUuidMapper = keys -> {
-            List<KeyPair> resultList = keys.map(k -> new KeyPair(k, UUID.randomUUID().toString().replace("-", ""))).collect(Collectors.toList());
-            resultList.remove(0);
-            return resultList.stream();
+        AtomicInteger count = new AtomicInteger(0);
+        Function<String, String> brokenFileLocalUuidMapper = k -> {
+            if (count.getAndIncrement() == 0) {
+                return null;
+            }
+            return UUID.randomUUID().toString().replace("-", "");
         };
 
         try {
             scanAndObfuscate(originalFile, layout, brokenFileLocalUuidMapper);
-        } catch (UnmappedKeyException e) {
-            assertTrue(e.getMappedKeyCount() == e.getScannedKeyCount() - 1);
+        } catch (Exception e) {
             return;
         }
 
@@ -83,7 +86,7 @@ public class FileObfuscationTest {
 
     }
 
-    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, KeyMapper mapper) throws IOException {
+    private List<String[]> scanAndObfuscate(Path originalFile, Map<Integer, TestKeyType> layout, Function<String, String> mapper) throws IOException {
 
         FileObfuscator<TestKeyType> obfuscator = new FileObfuscator<>(TestKeyType.class, layout, mapper);
 
