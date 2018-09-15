@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,14 +31,16 @@ public class FileObfuscator<T extends Enum<T>> {
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Map<String, String>> scannerKeymaps = scanner.getKeysets().entrySet().stream().collect(Collectors.toUnmodifiableMap(
+        Map<T, Set<String>> scannedKeysets = scanner.getKeysets();
+
+        Map<T, Map<String, String>> scannedKeymaps = scannedKeysets.entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,
                 e -> {
-                    Function<String, String> keyTypeMapper = keyMappers.get(e.getKey());
+                    Function<String, String> keyMapper = keyMappers.get(e.getKey());
                     return e.getValue().stream().collect(Collectors.toMap(
                             k -> k,
                             k -> {
-                                String obfuscatedKey = keyTypeMapper.apply(k);
+                                String obfuscatedKey = keyMapper.apply(k);
                                 if (obfuscatedKey == null) {
                                     throw new UnmappedKeyException(k);
                                 }
@@ -45,9 +48,7 @@ public class FileObfuscator<T extends Enum<T>> {
                             }));
                 }));
 
-        RecordKeyRewriter.Builder rewriterBuilder = RecordKeyRewriter.createBuilder();
-        columnKeyTypes.forEach((i, t) -> rewriterBuilder.setKeyColumn(i, scannerKeymaps.get(t)));
-        RecordKeyRewriter rewriter = rewriterBuilder.build();
+        RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(columnKeyTypes, scannedKeymaps);
 
         try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             Files.lines(source, StandardCharsets.UTF_8)
