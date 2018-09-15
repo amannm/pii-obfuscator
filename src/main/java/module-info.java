@@ -1,2 +1,2 @@
-module pii.obfuscator {
+module systems.cauldron.utility.privacy {
 }
