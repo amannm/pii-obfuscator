@@ -7,9 +7,9 @@ class RecordKeyScanner<T extends Enum<T>> {
     private final ColumnKeyScanner[] scanners;
     private final Map<T, Set<String>> keysets;
 
-    RecordKeyScanner(Map<Integer, T> keyColumnScanners) {
+    RecordKeyScanner(Map<Integer, T> columnKeyTypes) {
         this.keysets = new HashMap<>();
-        this.scanners = keyColumnScanners.entrySet().stream()
+        this.scanners = columnKeyTypes.entrySet().stream()
                 .map(e -> new ColumnKeyScanner(e.getKey(), keysets.computeIfAbsent(e.getValue(), x -> new HashSet<>())))
                 .toArray(ColumnKeyScanner[]::new);
     }
