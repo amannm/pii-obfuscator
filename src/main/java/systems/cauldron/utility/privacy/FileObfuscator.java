@@ -17,13 +17,9 @@ public class FileObfuscator<T extends Enum<T>> {
     private final Map<T, Function<String, String>> keyMappers;
 
     public FileObfuscator(Map<Integer, T> columnKeyTypes, Map<T, Function<String, String>> keyMappers) {
+        validateKeyTypes(columnKeyTypes, keyMappers);
         this.columnKeyTypes = columnKeyTypes;
         this.keyMappers = keyMappers;
-        for (T type : columnKeyTypes.values()) {
-            if (!keyMappers.containsKey(type)) {
-                throw new KeyTypeMapperNotFoundException(type.toString());
-            }
-        }
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
@@ -36,20 +32,7 @@ public class FileObfuscator<T extends Enum<T>> {
 
         Map<T, Set<String>> scannedKeysets = scanner.getResults();
 
-        Map<T, Map<String, String>> scannedKeymaps = scannedKeysets.entrySet().stream().collect(Collectors.toUnmodifiableMap(
-                Map.Entry::getKey,
-                e -> {
-                    Function<String, String> keyMapper = keyMappers.get(e.getKey());
-                    return e.getValue().stream().collect(Collectors.toMap(
-                            k -> k,
-                            k -> {
-                                String obfuscatedKey = keyMapper.apply(k);
-                                if (obfuscatedKey == null) {
-                                    throw new ObfuscatedKeyNotFoundException(k);
-                                }
-                                return obfuscatedKey;
-                            }));
-                }));
+        Map<T, Map<String, String>> scannedKeymaps = generateScannedKeymaps(scannedKeysets);
 
         RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(columnKeyTypes, scannedKeymaps);
 
@@ -66,6 +49,31 @@ public class FileObfuscator<T extends Enum<T>> {
                             throw new RuntimeException(e);
                         }
                     });
+        }
+    }
+
+    private Map<T, Map<String, String>> generateScannedKeymaps(Map<T, Set<String>> scannedKeysets) {
+        return scannedKeysets.entrySet().stream().collect(Collectors.toUnmodifiableMap(
+                Map.Entry::getKey,
+                e -> {
+                    Function<String, String> keyMapper = keyMappers.get(e.getKey());
+                    return e.getValue().stream().collect(Collectors.toMap(
+                            k -> k,
+                            k -> {
+                                String obfuscatedKey = keyMapper.apply(k);
+                                if (obfuscatedKey == null) {
+                                    throw new ObfuscatedKeyNotFoundException(k);
+                                }
+                                return obfuscatedKey;
+                            }));
+                }));
+    }
+
+    private static <T> void validateKeyTypes(Map<Integer, T> columnKeyTypes, Map<T, Function<String, String>> keyMappers) {
+        for (T type : columnKeyTypes.values()) {
+            if (!keyMappers.containsKey(type)) {
+                throw new KeyTypeMapperNotFoundException(type.toString());
+            }
         }
     }
 
