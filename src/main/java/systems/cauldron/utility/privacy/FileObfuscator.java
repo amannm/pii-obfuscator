@@ -47,5 +47,4 @@ public class FileObfuscator<T extends Enum<T>> {
     }
 
 
-
 }
