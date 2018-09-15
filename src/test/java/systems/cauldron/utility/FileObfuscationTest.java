@@ -53,6 +53,8 @@ public class FileObfuscationTest {
         assertEquals(obfuscatedLines.get(0)[1], obfuscatedLines.get(1)[5]);
         assertEquals(obfuscatedLines.get(0)[5], obfuscatedLines.get(1)[1]);
 
+        assertNotEquals(obfuscatedLines.get(5)[1], obfuscatedLines.get(3)[3]);
+
     }
 
     @Test
