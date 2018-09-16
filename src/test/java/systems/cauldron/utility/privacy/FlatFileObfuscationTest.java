@@ -38,7 +38,6 @@ public class FlatFileObfuscationTest {
         layout.put(5, TestEntityKeyType.CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
-
         Function<String, String> passThroughMapper = k -> k;
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
@@ -79,6 +78,8 @@ public class FlatFileObfuscationTest {
         layout.put(5, TestEntityKeyType.CUSTOMER);
 
         AtomicInteger count = new AtomicInteger(0);
+
+        Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
         Function<String, String> brokenFileLocalUuidMapper = k -> {
             if (count.getAndIncrement() == 0) {
                 return null;
@@ -87,7 +88,7 @@ public class FlatFileObfuscationTest {
         };
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
-        typeMappers.put(TestEntityKeyType.CUSTOMER, brokenFileLocalUuidMapper);
+        typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.ACCOUNT, brokenFileLocalUuidMapper);
         LocalKeyTransformer<TestEntityKeyType> transformer = new LocalKeyTransformer<>(layout, typeMappers);
 
