@@ -1,4 +1,4 @@
-package systems.cauldron.utility.privacy;
+package systems.cauldron.utility.privacy.exception;
 
 public class KeyTypeMapperNotFoundException extends RuntimeException {
     public KeyTypeMapperNotFoundException(String typeString) {

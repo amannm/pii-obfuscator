@@ -1,4 +1,4 @@
-package systems.cauldron.utility.privacy;
+package systems.cauldron.utility.privacy.obfuscator;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

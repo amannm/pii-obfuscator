@@ -1,4 +1,4 @@
-package systems.cauldron.utility.privacy;
+package systems.cauldron.utility.privacy.exception;
 
 public class ObfuscatedKeyNotFoundException extends RuntimeException {
     public ObfuscatedKeyNotFoundException(String scannedKey) {

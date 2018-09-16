@@ -1,4 +1,6 @@
-package systems.cauldron.utility.privacy;
+package systems.cauldron.utility.privacy.obfuscator;
+
+import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
 
 import java.util.Map;
 import java.util.Set;

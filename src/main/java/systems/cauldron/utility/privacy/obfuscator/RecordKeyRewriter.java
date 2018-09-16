@@ -1,4 +1,4 @@
-package systems.cauldron.utility.privacy;
+package systems.cauldron.utility.privacy.obfuscator;
 
 import java.util.Map;
 import java.util.stream.Collectors;
