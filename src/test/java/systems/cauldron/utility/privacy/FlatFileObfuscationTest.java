@@ -37,9 +37,9 @@ public class FlatFileObfuscationTest {
         layout.put(4, TestEntityKeyType.HORSE);
         layout.put(5, TestEntityKeyType.CUSTOMER);
 
-        Function<String, String> passThroughMapper = k -> k;
-
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
+
+        Function<String, String> passThroughMapper = k -> k;
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
