@@ -82,7 +82,6 @@ public class FlatFileObfuscationTest {
         layout.put(3, TestEntityKeyType.ACCOUNT);
         layout.put(5, TestEntityKeyType.CUSTOMER);
 
-
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
 
         AtomicInteger count = new AtomicInteger(0);
