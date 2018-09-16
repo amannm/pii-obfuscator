@@ -29,7 +29,7 @@ public class LocalKeyTransformer<T extends Enum<T>> extends KeyTransformer<T> {
                 Map.Entry::getKey,
                 e -> {
                     Function<String, String> keyMapper = keyMappers.get(e.getKey());
-                    return e.getValue().stream().collect(Collectors.toMap(
+                    return e.getValue().stream().collect(Collectors.toUnmodifiableMap(
                             k -> k,
                             k -> {
                                 String obfuscatedKey = keyMapper.apply(k);
