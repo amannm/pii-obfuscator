@@ -20,10 +20,10 @@ public abstract class RemoteKeyTransformer<T extends Enum<T>> extends KeyTransfo
                     Set<String> scannedKeys = e.getValue();
                     Map<String, String> keyMap = mapScannedKeys(e.getKey(), scannedKeys);
                     Set<String> keyMapSet = keyMap.keySet();
-                    if (!keyMapSet.containsAll(scannedKeys)) {
+                    keyMapSet.retainAll(scannedKeys);
+                    if (keyMapSet.size() != scannedKeys.size()) {
                         throw new ObfuscatedKeyNotFoundException();
                     }
-                    keyMapSet.retainAll(scannedKeys);
                     return keyMap;
                 }));
     }
