@@ -6,6 +6,6 @@ public class ObfuscatedKeyNotFoundException extends RuntimeException {
     }
 
     public ObfuscatedKeyNotFoundException() {
-        super("no obfuscated key mismatch");
+        super("obfuscated key mismatch");
     }
 }
