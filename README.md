@@ -7,5 +7,4 @@ does not currently support more complex field tokenization past simple delimiter
 
 ## todo
 * refactor public API to friendlier boundary (config objects?)
-* figure out this module thing
 * build out `RemoteKeyTransformer` implementation involving JDBC
