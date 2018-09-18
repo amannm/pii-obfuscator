@@ -1,8 +1,7 @@
 package systems.cauldron.utility.privacy.mapper;
 
-import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
-
 import java.util.Map;
+import java.util.Set;
 
 public abstract class KeyMapper<T> {
 
@@ -16,6 +15,6 @@ public abstract class KeyMapper<T> {
         return layout;
     }
 
-    public abstract Map<T, Map<String, String>> generateKeymaps(RecordKeyScanner<T> scanner);
+    public abstract Map<T, Map<String, String>> generateKeymaps(Map<T, Set<String>> scanner);
 
 }

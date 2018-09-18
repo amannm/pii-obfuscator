@@ -1,7 +1,6 @@
 package systems.cauldron.utility.privacy.mapper;
 
 import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
-import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
 
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +13,8 @@ public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
     }
 
     @Override
-    public Map<T, Map<String, String>> generateKeymaps(RecordKeyScanner<T> scanner) {
-        return scanner.getResults().entrySet().stream().collect(Collectors.toMap(
+    public Map<T, Map<String, String>> generateKeymaps(Map<T, Set<String>> results) {
+        return results.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 e -> {
                     Set<String> scannedKeys = e.getValue();

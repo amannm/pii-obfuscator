@@ -2,7 +2,6 @@ package systems.cauldron.utility.privacy.mapper;
 
 import systems.cauldron.utility.privacy.exception.KeyTypeMapperNotFoundException;
 import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
-import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
 
 import java.util.Map;
 import java.util.Set;
@@ -24,8 +23,7 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
     }
 
     @Override
-    public Map<T, Map<String, String>> generateKeymaps(RecordKeyScanner<T> scanner) {
-        Map<T, Set<String>> results = scanner.getResults();
+    public Map<T, Map<String, String>> generateKeymaps(Map<T, Set<String>> results) {
         return results.entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,
                 e -> {

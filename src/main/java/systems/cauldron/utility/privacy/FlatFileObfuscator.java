@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Set;
 
 public class FlatFileObfuscator<T> {
 
@@ -24,15 +25,11 @@ public class FlatFileObfuscator<T> {
 
         Map<Integer, T> layout = mapper.getLayout();
 
-        RecordKeyScanner<T> scanner = new RecordKeyScanner<>(layout);
+        Map<T, Set<String>> scannedKeys = scan(source, delimiter, layout);
 
-        Files.lines(source, StandardCharsets.UTF_8)
-                .map(line -> line.split(delimiter, -1))
-                .forEach(scanner::scan);
+        Map<T, Map<String, String>> scannedKeymaps = mapper.generateKeymaps(scannedKeys);
 
-        Map<T, Map<String, String>> keymaps = mapper.generateKeymaps(scanner);
-
-        RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(layout, keymaps);
+        RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(layout, scannedKeymaps);
 
         try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -51,6 +48,14 @@ public class FlatFileObfuscator<T> {
                     });
 
         }
+    }
+
+    private static <T> Map<T, Set<String>> scan(Path source, String delimiter, Map<Integer, T> layout) throws IOException {
+        RecordKeyScanner<T> scanner = new RecordKeyScanner<>(layout);
+        Files.lines(source, StandardCharsets.UTF_8)
+                .map(line -> line.split(delimiter, -1))
+                .forEach(scanner::scan);
+        return scanner.getResults();
     }
 
 
