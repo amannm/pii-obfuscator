@@ -22,13 +22,13 @@ public abstract class CachedKeyMapper<T> extends KeyMapper<T> {
                 Map.Entry::getKey,
                 e -> {
                     Set<String> scannedKeys = e.getValue();
-                    Map<String, String> keyMap = mappers.get(e.getKey()).apply(scannedKeys);
-                    Set<String> keyMapSet = keyMap.keySet();
+                    Map<String, String> mapper = mappers.get(e.getKey()).apply(scannedKeys);
+                    Set<String> keyMapSet = mapper.keySet();
                     keyMapSet.retainAll(scannedKeys);
                     if (keyMapSet.size() != scannedKeys.size()) {
                         throw new ObfuscatedKeyNotFoundException();
                     }
-                    return keyMap;
+                    return mapper;
                 }));
     }
 

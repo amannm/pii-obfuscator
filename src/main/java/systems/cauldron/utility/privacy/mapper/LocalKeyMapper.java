@@ -21,11 +21,11 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
         return results.entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,
                 e -> {
-                    Function<String, String> keyMapper = mappers.get(e.getKey());
+                    Function<String, String> mapper = mappers.get(e.getKey());
                     return e.getValue().stream().collect(Collectors.toUnmodifiableMap(
                             k -> k,
                             k -> {
-                                String obfuscatedKey = keyMapper.apply(k);
+                                String obfuscatedKey = mapper.apply(k);
                                 if (obfuscatedKey == null) {
                                     throw new ObfuscatedKeyNotFoundException(k);
                                 }
