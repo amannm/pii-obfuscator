@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static systems.cauldron.utility.privacy.FlatFileObfuscationTest.TestEntityKeyType.*;
 
 public class FlatFileObfuscationTest {
 
@@ -36,18 +37,18 @@ public class FlatFileObfuscationTest {
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
         Map<Integer, TestEntityKeyType> layout = new HashMap<>();
-        layout.put(1, TestEntityKeyType.CUSTOMER);
-        layout.put(3, TestEntityKeyType.ACCOUNT);
-        layout.put(4, TestEntityKeyType.HORSE);
-        layout.put(5, TestEntityKeyType.CUSTOMER);
+        layout.put(1, CUSTOMER);
+        layout.put(3, ACCOUNT);
+        layout.put(4, HORSE);
+        layout.put(5, CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
         Function<String, String> passThroughMapper = k -> k;
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
-        typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
-        typeMappers.put(TestEntityKeyType.ACCOUNT, fileLocalUuidMapper);
-        typeMappers.put(TestEntityKeyType.HORSE, passThroughMapper);
+        typeMappers.put(CUSTOMER, fileLocalUuidMapper);
+        typeMappers.put(ACCOUNT, fileLocalUuidMapper);
+        typeMappers.put(HORSE, passThroughMapper);
         LocalKeyMapper<TestEntityKeyType> transformer = new LocalKeyMapper<>(layout, typeMappers);
 
         List<String[]> obfuscatedLines = scanAndObfuscateFile(originalFile, transformer);
@@ -77,9 +78,9 @@ public class FlatFileObfuscationTest {
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
         Map<Integer, TestEntityKeyType> layout = new HashMap<>();
-        layout.put(1, TestEntityKeyType.CUSTOMER);
-        layout.put(3, TestEntityKeyType.ACCOUNT);
-        layout.put(5, TestEntityKeyType.CUSTOMER);
+        layout.put(1, CUSTOMER);
+        layout.put(3, ACCOUNT);
+        layout.put(5, CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
 
@@ -92,8 +93,8 @@ public class FlatFileObfuscationTest {
         };
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
-        typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
-        typeMappers.put(TestEntityKeyType.ACCOUNT, brokenFileLocalUuidMapper);
+        typeMappers.put(CUSTOMER, fileLocalUuidMapper);
+        typeMappers.put(ACCOUNT, brokenFileLocalUuidMapper);
         LocalKeyMapper<TestEntityKeyType> transformer = new LocalKeyMapper<>(layout, typeMappers);
 
         try {
@@ -112,14 +113,14 @@ public class FlatFileObfuscationTest {
         Path originalFile = Paths.get("src", "test", "resources", "test.csv");
 
         Map<Integer, TestEntityKeyType> layout = new HashMap<>();
-        layout.put(1, TestEntityKeyType.CUSTOMER);
-        layout.put(3, TestEntityKeyType.ACCOUNT);
-        layout.put(5, TestEntityKeyType.CUSTOMER);
+        layout.put(1, CUSTOMER);
+        layout.put(3, ACCOUNT);
+        layout.put(5, CUSTOMER);
 
         Function<String, String> fileLocalUuidMapper = k -> UUID.randomUUID().toString().replace("-", "");
 
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
-        typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
+        typeMappers.put(CUSTOMER, fileLocalUuidMapper);
 
         try {
             new LocalKeyMapper<>(layout, typeMappers);
