@@ -8,3 +8,4 @@ does not currently support more complex field tokenization past simple delimiter
 ## todo
 * refactor public API to friendlier boundary (config objects?)
 * build out `RemoteKeyTransformer` implementation involving JDBC
+* extract some sort of config object instead of all this generic crap
