@@ -22,18 +22,12 @@ public class FlatFileObfuscator<T> {
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
-
         Map<Integer, T> layout = mapper.getLayout();
-
         Map<T, Set<String>> scannedKeys = scan(source, delimiter, layout);
-
         Map<T, Map<String, String>> scannedKeymaps = mapper.generateKeymaps(scannedKeys);
-
         RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(layout, scannedKeymaps);
-
         try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-
             Files.lines(source, StandardCharsets.UTF_8)
                     .map(line -> line.split(delimiter, -1))
                     .peek(rewriter::rewrite)
@@ -46,7 +40,6 @@ public class FlatFileObfuscator<T> {
                             throw new RuntimeException(e);
                         }
                     });
-
         }
     }
 
