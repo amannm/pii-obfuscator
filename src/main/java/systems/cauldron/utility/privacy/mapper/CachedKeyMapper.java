@@ -11,10 +11,9 @@ public abstract class CachedKeyMapper<T> extends KeyMapper<T> {
 
     private final Map<T, Function<Set<String>, Map<String, String>>> mappers;
 
-    public CachedKeyMapper(Map<Integer, T> layout, Map<T, Function<Set<String>, Map<String, String>>> keysetMappers) {
-        super(layout);
-        validate(layout, keysetMappers);
-        this.mappers = keysetMappers;
+    public CachedKeyMapper(Map<Integer, T> layout, Map<T, Function<Set<String>, Map<String, String>>> mappers) {
+        super(layout, mappers);
+        this.mappers = mappers;
     }
 
     @Override

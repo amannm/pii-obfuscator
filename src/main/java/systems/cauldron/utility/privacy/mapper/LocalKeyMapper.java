@@ -12,8 +12,7 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
     private final Map<T, Function<String, String>> keyMappers;
 
     public LocalKeyMapper(Map<Integer, T> layout, Map<T, Function<String, String>> mappers) {
-        super(layout);
-        validate(layout, mappers);
+        super(layout, mappers);
         this.keyMappers = mappers;
     }
 

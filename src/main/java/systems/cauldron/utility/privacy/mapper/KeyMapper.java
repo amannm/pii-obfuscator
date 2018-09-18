@@ -9,7 +9,8 @@ public abstract class KeyMapper<T> {
 
     private final Map<Integer, T> layout;
 
-    KeyMapper(Map<Integer, T> layout) {
+    KeyMapper(Map<Integer, T> layout, Map<T, ?> mappers) {
+        validate(layout, mappers);
         this.layout = layout;
     }
 
@@ -19,7 +20,7 @@ public abstract class KeyMapper<T> {
 
     public abstract Map<T, Map<String, String>> generateKeymaps(Map<T, Set<String>> scanner);
 
-    static <T> void validate(Map<Integer, T> layout, Map<T, ?> mappers) {
+    private static <T> void validate(Map<Integer, T> layout, Map<T, ?> mappers) {
         for (T type : layout.values()) {
             if (!mappers.containsKey(type)) {
                 throw new KeyTypeMapperNotFoundException(type.toString());
