@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 public class LocalKeyMapper<T> extends KeyMapper<T> {
 
-    private final Map<T, Function<String, String>> keyMappers;
+    private final Map<T, Function<String, String>> mappers;
 
     public LocalKeyMapper(Map<Integer, T> layout, Map<T, Function<String, String>> mappers) {
         super(layout, mappers);
-        this.keyMappers = mappers;
+        this.mappers = mappers;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
         return results.entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,
                 e -> {
-                    Function<String, String> keyMapper = keyMappers.get(e.getKey());
+                    Function<String, String> keyMapper = mappers.get(e.getKey());
                     return e.getValue().stream().collect(Collectors.toUnmodifiableMap(
                             k -> k,
                             k -> {
