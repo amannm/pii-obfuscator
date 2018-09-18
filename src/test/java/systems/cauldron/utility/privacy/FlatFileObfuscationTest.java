@@ -3,9 +3,8 @@ package systems.cauldron.utility.privacy;
 import org.junit.Test;
 import systems.cauldron.utility.privacy.exception.KeyTypeMapperNotFoundException;
 import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
-import systems.cauldron.utility.privacy.obfuscator.FlatFileObfuscator;
-import systems.cauldron.utility.privacy.obfuscator.KeyTransformer;
-import systems.cauldron.utility.privacy.obfuscator.LocalKeyTransformer;
+import systems.cauldron.utility.privacy.mapper.KeyMapper;
+import systems.cauldron.utility.privacy.mapper.LocalKeyMapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +48,7 @@ public class FlatFileObfuscationTest {
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.ACCOUNT, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.HORSE, passThroughMapper);
-        LocalKeyTransformer<TestEntityKeyType> transformer = new LocalKeyTransformer<>(layout, typeMappers);
+        LocalKeyMapper<TestEntityKeyType> transformer = new LocalKeyMapper<>(layout, typeMappers);
 
         List<String[]> obfuscatedLines = scanAndObfuscateFile(originalFile, transformer);
 
@@ -95,7 +94,7 @@ public class FlatFileObfuscationTest {
         Map<TestEntityKeyType, Function<String, String>> typeMappers = new HashMap<>();
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
         typeMappers.put(TestEntityKeyType.ACCOUNT, brokenFileLocalUuidMapper);
-        LocalKeyTransformer<TestEntityKeyType> transformer = new LocalKeyTransformer<>(layout, typeMappers);
+        LocalKeyMapper<TestEntityKeyType> transformer = new LocalKeyMapper<>(layout, typeMappers);
 
         try {
             scanAndObfuscateFile(originalFile, transformer);
@@ -123,7 +122,7 @@ public class FlatFileObfuscationTest {
         typeMappers.put(TestEntityKeyType.CUSTOMER, fileLocalUuidMapper);
 
         try {
-            new LocalKeyTransformer<>(layout, typeMappers);
+            new LocalKeyMapper<>(layout, typeMappers);
         } catch (KeyTypeMapperNotFoundException e) {
             return;
         }
@@ -132,7 +131,7 @@ public class FlatFileObfuscationTest {
 
     }
 
-    private List<String[]> scanAndObfuscateFile(Path originalFile, KeyTransformer<TestEntityKeyType> transformer) throws IOException {
+    private List<String[]> scanAndObfuscateFile(Path originalFile, KeyMapper<TestEntityKeyType> transformer) throws IOException {
         FlatFileObfuscator<TestEntityKeyType> obfuscator = new FlatFileObfuscator<>(transformer);
         Path obfuscatedFile = null;
         try {

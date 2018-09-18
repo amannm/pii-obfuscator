@@ -1,18 +1,19 @@
-package systems.cauldron.utility.privacy.obfuscator;
+package systems.cauldron.utility.privacy.mapper;
 
 import systems.cauldron.utility.privacy.exception.KeyTypeMapperNotFoundException;
 import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
+import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class LocalKeyTransformer<T extends Enum<T>> extends KeyTransformer<T> {
+public class LocalKeyMapper<T> extends KeyMapper<T> {
 
     private final Map<T, Function<String, String>> keyMappers;
 
-    public LocalKeyTransformer(Map<Integer, T> columnKeyTypeMap, Map<T, Function<String, String>> keyMappers) {
+    public LocalKeyMapper(Map<Integer, T> columnKeyTypeMap, Map<T, Function<String, String>> keyMappers) {
         super(columnKeyTypeMap);
         for (T type : columnKeyTypeMap.values()) {
             if (!keyMappers.containsKey(type)) {

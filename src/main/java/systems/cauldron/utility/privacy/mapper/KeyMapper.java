@@ -1,16 +1,18 @@
-package systems.cauldron.utility.privacy.obfuscator;
+package systems.cauldron.utility.privacy.mapper;
+
+import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
 
 import java.util.Map;
 
-public abstract class KeyTransformer<T extends Enum<T>> {
+public abstract class KeyMapper<T> {
 
     private final Map<Integer, T> columnKeyTypeMap;
 
-    KeyTransformer(Map<Integer, T> columnKeyTypeMap) {
+    KeyMapper(Map<Integer, T> columnKeyTypeMap) {
         this.columnKeyTypeMap = columnKeyTypeMap;
     }
 
-    Map<Integer, T> getColumnKeyTypes() {
+    public Map<Integer, T> getColumnKeyTypes() {
         return columnKeyTypeMap;
     }
 

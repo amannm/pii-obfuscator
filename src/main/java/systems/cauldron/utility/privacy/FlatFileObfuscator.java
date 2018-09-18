@@ -1,4 +1,8 @@
-package systems.cauldron.utility.privacy.obfuscator;
+package systems.cauldron.utility.privacy;
+
+import systems.cauldron.utility.privacy.mapper.KeyMapper;
+import systems.cauldron.utility.privacy.operations.RecordKeyRewriter;
+import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -8,17 +12,17 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
-public class FlatFileObfuscator<T extends Enum<T>> {
+public class FlatFileObfuscator<T> {
 
-    private final KeyTransformer<T> transformer;
+    private final KeyMapper<T> mapper;
 
-    public FlatFileObfuscator(KeyTransformer<T> transformer) {
-        this.transformer = transformer;
+    public FlatFileObfuscator(KeyMapper<T> mapper) {
+        this.mapper = mapper;
     }
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
 
-        Map<Integer, T> columnKeyTypes = transformer.getColumnKeyTypes();
+        Map<Integer, T> columnKeyTypes = mapper.getColumnKeyTypes();
 
         RecordKeyScanner<T> scanner = new RecordKeyScanner<>(columnKeyTypes);
 
@@ -26,11 +30,13 @@ public class FlatFileObfuscator<T extends Enum<T>> {
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Map<String, String>> scannedKeymaps = transformer.generateScannedKeymaps(scanner);
+        Map<T, Map<String, String>> scannedKeymaps = mapper.generateScannedKeymaps(scanner);
 
         RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(columnKeyTypes, scannedKeymaps);
 
-        try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+
             Files.lines(source, StandardCharsets.UTF_8)
                     .map(line -> line.split(delimiter, -1))
                     .peek(rewriter::rewrite)
@@ -43,6 +49,7 @@ public class FlatFileObfuscator<T extends Enum<T>> {
                             throw new RuntimeException(e);
                         }
                     });
+
         }
     }
 

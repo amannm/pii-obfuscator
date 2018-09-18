@@ -1,14 +1,15 @@
-package systems.cauldron.utility.privacy.obfuscator;
+package systems.cauldron.utility.privacy.mapper;
 
 import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
+import systems.cauldron.utility.privacy.operations.RecordKeyScanner;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class RemoteKeyTransformer<T extends Enum<T>> extends KeyTransformer<T> {
+public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
 
-    private RemoteKeyTransformer(Map<Integer, T> columnKeyTypeMap) {
+    private RemoteKeyMapper(Map<Integer, T> columnKeyTypeMap) {
         super(columnKeyTypeMap);
     }
 

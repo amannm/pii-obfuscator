@@ -1,26 +1,26 @@
-package systems.cauldron.utility.privacy.obfuscator;
+package systems.cauldron.utility.privacy.operations;
 
 import java.util.*;
 
-class RecordKeyScanner<T extends Enum<T>> {
+public class RecordKeyScanner<T> {
 
     private final Map<T, Set<String>> keysets;
     private final ColumnKeyScanner[] scanners;
 
-    RecordKeyScanner(Map<Integer, T> columnKeyTypes) {
+    public RecordKeyScanner(Map<Integer, T> layout) {
         this.keysets = new HashMap<>();
-        this.scanners = columnKeyTypes.entrySet().stream()
+        this.scanners = layout.entrySet().stream()
                 .map(e -> new ColumnKeyScanner(e.getKey(), keysets.computeIfAbsent(e.getValue(), x -> new HashSet<>())))
                 .toArray(ColumnKeyScanner[]::new);
     }
 
-    void scan(String[] record) {
+    public void scan(String[] record) {
         for (ColumnKeyScanner scanner : scanners) {
             scanner.scan(record);
         }
     }
 
-    Map<T, Set<String>> getResults() {
+    public Map<T, Set<String>> getResults() {
         return Collections.unmodifiableMap(keysets);
     }
 

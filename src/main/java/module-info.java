@@ -1,4 +1,5 @@
 module systems.cauldron.utility.privacy {
-    exports systems.cauldron.utility.privacy.exception;
-    exports systems.cauldron.utility.privacy.obfuscator;
+    exports systems.cauldron.utility.privacy;
+    exports systems.cauldron.utility.privacy.mapper;
+    exports systems.cauldron.utility.privacy.operations;
 }

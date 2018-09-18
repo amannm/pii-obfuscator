@@ -1,21 +1,21 @@
-package systems.cauldron.utility.privacy.obfuscator;
+package systems.cauldron.utility.privacy.operations;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-class RecordKeyRewriter<T> {
+public class RecordKeyRewriter<T> {
 
     private final ColumnKeyRewriter[] rewriters;
 
-    RecordKeyRewriter(Map<Integer, T> columnKeyTypes, Map<T, Map<String, String>> typeKeymaps) {
-        this.rewriters = columnKeyTypes.entrySet().stream()
+    public RecordKeyRewriter(Map<Integer, T> layout, Map<T, Map<String, String>> typeKeymaps) {
+        this.rewriters = layout.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> typeKeymaps.get(e.getValue())))
                 .entrySet().stream()
                 .map(e -> new ColumnKeyRewriter(e.getKey(), e.getValue()))
                 .toArray(ColumnKeyRewriter[]::new);
     }
 
-    void rewrite(String[] record) {
+    public void rewrite(String[] record) {
         for (ColumnKeyRewriter rewriter : rewriters) {
             rewriter.rewrite(record);
         }
