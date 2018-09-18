@@ -1,6 +1,5 @@
 package systems.cauldron.utility.privacy.mapper;
 
-import systems.cauldron.utility.privacy.exception.KeyTypeMapperNotFoundException;
 import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException;
 
 import java.util.Map;
@@ -12,10 +11,10 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
 
     private final Map<T, Function<String, String>> keyMappers;
 
-    public LocalKeyMapper(Map<Integer, T> layout, Map<T, Function<String, String>> keyMappers) {
+    public LocalKeyMapper(Map<Integer, T> layout, Map<T, Function<String, String>> mappers) {
         super(layout);
-        validate(layout, keyMappers);
-        this.keyMappers = keyMappers;
+        validate(layout, mappers);
+        this.keyMappers = mappers;
     }
 
     @Override
@@ -36,12 +35,5 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
                 }));
     }
 
-    private static <T> void validate(Map<Integer, T> layout, Map<T, Function<String, String>> keyMappers) {
-        for (T type : layout.values()) {
-            if (!keyMappers.containsKey(type)) {
-                throw new KeyTypeMapperNotFoundException(type.toString());
-            }
-        }
-    }
 
 }

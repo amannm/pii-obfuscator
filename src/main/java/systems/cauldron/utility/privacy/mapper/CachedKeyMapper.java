@@ -4,12 +4,17 @@ import systems.cauldron.utility.privacy.exception.ObfuscatedKeyNotFoundException
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
+public abstract class CachedKeyMapper<T> extends KeyMapper<T> {
 
-    public RemoteKeyMapper(Map<Integer, T> layout) {
+    private final Map<T, Function<Set<String>, Map<String, String>>> mappers;
+
+    public CachedKeyMapper(Map<Integer, T> layout, Map<T, Function<Set<String>, Map<String, String>>> keysetMappers) {
         super(layout);
+        validate(layout, keysetMappers);
+        this.mappers = keysetMappers;
     }
 
     @Override
@@ -18,7 +23,7 @@ public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
                 Map.Entry::getKey,
                 e -> {
                     Set<String> scannedKeys = e.getValue();
-                    Map<String, String> keyMap = mapScannedKeys(e.getKey(), scannedKeys);
+                    Map<String, String> keyMap = mappers.get(e.getKey()).apply(scannedKeys);
                     Set<String> keyMapSet = keyMap.keySet();
                     keyMapSet.retainAll(scannedKeys);
                     if (keyMapSet.size() != scannedKeys.size()) {
@@ -27,7 +32,5 @@ public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
                     return keyMap;
                 }));
     }
-
-    abstract Map<String, String> mapScannedKeys(T type, Set<String> scannedKeys);
 
 }
