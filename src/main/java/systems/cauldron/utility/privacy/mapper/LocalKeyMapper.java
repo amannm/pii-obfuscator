@@ -14,11 +14,7 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
 
     public LocalKeyMapper(Map<Integer, T> layout, Map<T, Function<String, String>> keyMappers) {
         super(layout);
-        for (T type : layout.values()) {
-            if (!keyMappers.containsKey(type)) {
-                throw new KeyTypeMapperNotFoundException(type.toString());
-            }
-        }
+        validate(layout, keyMappers);
         this.keyMappers = keyMappers;
     }
 
@@ -38,6 +34,14 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
                                 return obfuscatedKey;
                             }));
                 }));
+    }
+
+    private static <T> void validate(Map<Integer, T> layout, Map<T, Function<String, String>> keyMappers) {
+        for (T type : layout.values()) {
+            if (!keyMappers.containsKey(type)) {
+                throw new KeyTypeMapperNotFoundException(type.toString());
+            }
+        }
     }
 
 }

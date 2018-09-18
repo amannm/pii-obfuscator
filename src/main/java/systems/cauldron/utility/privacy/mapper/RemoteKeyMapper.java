@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
 
-    private RemoteKeyMapper(Map<Integer, T> layout) {
+    public RemoteKeyMapper(Map<Integer, T> layout) {
         super(layout);
     }
 
