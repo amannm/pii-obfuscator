@@ -13,9 +13,9 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
 
     private final Map<T, Function<String, String>> keyMappers;
 
-    public LocalKeyMapper(Map<Integer, T> columnKeyTypeMap, Map<T, Function<String, String>> keyMappers) {
-        super(columnKeyTypeMap);
-        for (T type : columnKeyTypeMap.values()) {
+    public LocalKeyMapper(Map<Integer, T> layout, Map<T, Function<String, String>> keyMappers) {
+        super(layout);
+        for (T type : layout.values()) {
             if (!keyMappers.containsKey(type)) {
                 throw new KeyTypeMapperNotFoundException(type.toString());
             }
@@ -24,7 +24,7 @@ public class LocalKeyMapper<T> extends KeyMapper<T> {
     }
 
     @Override
-    public Map<T, Map<String, String>> generateScannedKeymaps(RecordKeyScanner<T> scanner) {
+    public Map<T, Map<String, String>> generateKeymaps(RecordKeyScanner<T> scanner) {
         Map<T, Set<String>> results = scanner.getResults();
         return results.entrySet().stream().collect(Collectors.toUnmodifiableMap(
                 Map.Entry::getKey,

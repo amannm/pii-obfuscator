@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 
 public abstract class RemoteKeyMapper<T> extends KeyMapper<T> {
 
-    private RemoteKeyMapper(Map<Integer, T> columnKeyTypeMap) {
-        super(columnKeyTypeMap);
+    private RemoteKeyMapper(Map<Integer, T> layout) {
+        super(layout);
     }
 
     @Override
-    public Map<T, Map<String, String>> generateScannedKeymaps(RecordKeyScanner<T> scanner) {
+    public Map<T, Map<String, String>> generateKeymaps(RecordKeyScanner<T> scanner) {
         return scanner.getResults().entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 e -> {

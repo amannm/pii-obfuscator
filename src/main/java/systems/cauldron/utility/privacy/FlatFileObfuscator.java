@@ -22,17 +22,17 @@ public class FlatFileObfuscator<T> {
 
     public void obfuscate(String delimiter, Path source, Path destination) throws IOException {
 
-        Map<Integer, T> columnKeyTypes = mapper.getColumnKeyTypes();
+        Map<Integer, T> layout = mapper.getLayout();
 
-        RecordKeyScanner<T> scanner = new RecordKeyScanner<>(columnKeyTypes);
+        RecordKeyScanner<T> scanner = new RecordKeyScanner<>(layout);
 
         Files.lines(source, StandardCharsets.UTF_8)
                 .map(line -> line.split(delimiter, -1))
                 .forEach(scanner::scan);
 
-        Map<T, Map<String, String>> scannedKeymaps = mapper.generateScannedKeymaps(scanner);
+        Map<T, Map<String, String>> keymaps = mapper.generateKeymaps(scanner);
 
-        RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(columnKeyTypes, scannedKeymaps);
+        RecordKeyRewriter<T> rewriter = new RecordKeyRewriter<>(layout, keymaps);
 
         try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
